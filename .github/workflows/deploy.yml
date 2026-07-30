@@ -11,34 +11,40 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
+  group: pages
   cancel-in-progress: true
 
 jobs:
   deploy:
+    runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # আপডেট করা Node ভার্সন ব্যবহার করছি
+          node-version: 22
+          cache: npm
 
       - name: Install dependencies
-        run: npm install # লক ফাইল না থাকায় 'npm ci' এর বদলে সরাসরি ফ্রেশ ইনস্টল হবে
+        run: npm ci
 
-      - name: Build
+      - name: Build project
         run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment
